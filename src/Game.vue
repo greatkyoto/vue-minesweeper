@@ -62,40 +62,40 @@ main {
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import Cell from "./Cell.vue";
+import Cell from "./Cell.vue"; //vueの導入のための記述
 
-export type Status = 'preparing'|'playing'|'successed'|'failured';
+export type Status = 'preparing'|'playing'|'successed'|'failured'; //statusによってゲームの状態を規程
 
 const components = {
     'cell': Cell
 };
 
-@Component({components})
-export default class Game extends Vue{
-    status: Status = 'preparing';
+@Component({components})//コンポーネントの宣言
+export default class Game extends Vue{ //Gameと言うクラススタイルVueコンポーネントを宣言
+    status: Status = 'preparing';//初めの状態
     width: number = 5;
     height: number = 5;
     bomb: number = 5;
 
     created(){
-        document.title = 'Game';
+        document.title = 'Game'; //タイトル設定
     }
 
-    get title(): string{
+    get title(): string{//ゲッター　プロパティが参照された時に
         return "Title";
     }
 
     private getCells(): Cell[]{
-        const cells = this.$refs.cells;
+        const cells = this.$refs.cells;//配置したコンポーネントを動的に取得して、スタイルとかプロパティを取得して弄ったり、処理を実行させたりコンポーネントインスタンスcells
         if(cells instanceof Array) return cells as Cell[];
         if(cells instanceof Cell) return [cells];
         return [];
     }
 
     gatherAroundCells(x: number, y: number){
-        return this.getCells().filter(cell=>{
-            if(cell.x == x && cell.y == y) return false;
-            if(cell.x < x - 1) return false;
+        return this.getCells().filter(cell=>{//取得したcellに対して以下の要件に合致するものだけを取り出す
+            if(cell.x == x && cell.y == y) return false;//周辺のcellだから
+            if(cell.x < x - 1) return false;//枠外のcellをカウントしないための条件
             if(cell.x > x + 1) return false;
             if(cell.y < y - 1) return false;
             if(cell.y > y + 1) return false;
@@ -103,7 +103,7 @@ export default class Game extends Vue{
         });
     }
 
-    recount(){
+    recount(){//なんの関数か？
         
     }
 
@@ -112,11 +112,14 @@ export default class Game extends Vue{
     }
 
     giveup(){
-        
+        this.status = 'failured';
     }
 
     reset(){
-        
+        this.status = 'preparing';
+        this.width= 5;
+        this.height= 5;
+        this.bomb= 5;
     }
 
 }
