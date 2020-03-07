@@ -28,7 +28,7 @@ main {
 
 <template>
 <main>
-    <h1>{{title}}</h1>
+    <h1>{{title}}</h1><!--computedの呼び出しだから（）ない-->
     <div>
         <p>
             <input type="number" v-model.number="width" :min="3" :max="30" :disabled="status != 'preparing'" />
@@ -43,7 +43,7 @@ main {
         <button v-else @click="reset">Reset</button>
     </div>
     <table>
-        <tr v-for="y in height" :key="y">
+        <tr v-for="y in height" :key="y"><!--指定した回数表示を繰り返す　v-bind:key="y"-->
             <td v-for="x in width" :key="x">
                 <cell
                     ref="cells"
@@ -52,7 +52,7 @@ main {
                     :x="x"
                     :y="y"
                     @update="recount()">
-                </cell>
+                </cell><!--cellタグはcellコンポーネントから-->
             </td>
         </tr>
     </table>
@@ -70,30 +70,35 @@ const components = {
     'cell': Cell
 };
 
-@Component({components})//コンポーネントの宣言
+@Component({components})//コンポーネントの宣言 
 export default class Game extends Vue{ //Gameと言うクラススタイルVueコンポーネントを宣言
+    readonly digged!: boolean;
+
     status: Status = 'preparing';//初めの状態
     width: number = 5;
     height: number = 5;
     bomb: number = 5;
+    opened: number = 0;
 
     created(){
         document.title = 'Game'; //タイトル設定
     }
 
-    get title(): string{//ゲッター　プロパティが参照された時に
-        return "Title";
+    
+
+    get title(): string{//ゲッター　参照のみ　statusの状態で書き換え
+        return "MineSweeper";
     }
 
-    private getCells(): Cell[]{
+    private getCells(): Cell[]{//cellを全て取得して、配列の中に
         const cells = this.$refs.cells;//配置したコンポーネントを動的に取得して、スタイルとかプロパティを取得して弄ったり、処理を実行させたりコンポーネントインスタンスcells
-        if(cells instanceof Array) return cells as Cell[];
-        if(cells instanceof Cell) return [cells];
+        if(cells instanceof Array) return cells as Cell[];//cellsがArrayクラスに属する場合は
+        if(cells instanceof Cell) return [cells];//cellsがCellクラスに属する場合は
         return [];
     }
 
     gatherAroundCells(x: number, y: number){
-        return this.getCells().filter(cell=>{//取得したcellに対して以下の要件に合致するものだけを取り出す
+        return this.getCells().filter(cell=>{//getCells()で全てのcellを習得　filter関数で
             if(cell.x == x && cell.y == y) return false;//周辺のcellだから
             if(cell.x < x - 1) return false;//枠外のcellをカウントしないための条件
             if(cell.x > x + 1) return false;
@@ -107,19 +112,32 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         
     }
 
+    bombEastablish(){
+        this.$refs.cells.establish();
+    }
+
     start(){
+        //ここでestablish関数を呼び出して、爆弾をランダム配置したいy　refsを使用して、実装可能
         this.status = 'playing';
     }
 
     giveup(){
         this.status = 'failured';
+        
     }
 
     reset(){
         this.status = 'preparing';
-        this.width= 5;
-        this.height= 5;
-        this.bomb= 5;
+        const cells = this.$refs.cells;
+        //cells.digged= 'false'　代案：全てのcellの真偽値を
+        //ここに前回のますを削除する
+    }
+
+    finish(){//このほかに開けたますをopenedに追加する関数
+        if(this.opened==this.width*this.height){
+            this.status='successed';
+            
+        }
     }
 
 }
