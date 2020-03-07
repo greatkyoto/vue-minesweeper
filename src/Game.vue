@@ -51,7 +51,8 @@ main {
                     :arounds="gatherAroundCells(x, y)"
                     :x="x"
                     :y="y"
-                    @update="recount()">
+                    @update="recount()"
+                    @gather="gatherAroundCells()"><!--aroundsはただ単に近接した８マスを集めた物-->
                 </cell><!--cellタグはcellコンポーネントから-->
             </td>
         </tr>
@@ -97,7 +98,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         return [];
     }
 
-    gatherAroundCells(x: number, y: number){
+    gatherAroundCells(x: number, y: number){//ただ周りのマスを集めた物を返している
         return this.getCells().filter(cell=>{//getCells()で全てのcellを習得　filter関数で
             if(cell.x == x && cell.y == y) return false;//周辺のcellだから
             if(cell.x < x - 1) return false;//枠外のcellをカウントしないための条件

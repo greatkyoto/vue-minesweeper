@@ -45,12 +45,15 @@ export default class Cell extends Vue{
         return true;
     }
 
-    get aroundBombsNumber(){//これは何を取得するためのもの？　今はただ０を返すだけのもの
-
+    get aroundBombsNumber(){//周辺の爆弾の数を返す物　//gatherAroundCellsをGameから取得
+        for(var h = 0; h < 9; h++){
+            var have = this.$emit('gather');
+        }
+        
         return 0;
     }
 
-    establish(){
+    establish(x: number, y: number){
         for (var i = 0; i < this.x; i++) {
         while (true) {
             var a = Math.floor(Math.random() * this.x);
