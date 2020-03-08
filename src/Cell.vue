@@ -46,11 +46,8 @@ export default class Cell extends Vue{
     }
 
     get aroundBombsNumber(){//周辺の爆弾の数を返す物　//gatherAroundCellsをGameから取得
-        for(var h = 0; h < 9; h++){
-            var have = this.$emit('gather');
-        }
-        
-        return 0;
+        var array = this.arounds.filter(element => element.bomb=true).length;//ボムがある周りのます自体をarrayに代入　そしてarrayの数を出力する
+        return array;
     }
 
     establish(x: number, y: number){
