@@ -15,7 +15,6 @@
 <template>
     <div :class="{digged}" @click="dig()" @contextmenu.prevent="mark()"> <!--v-on,v-bindの省略記法 クラスは知らんけど、他は行けてる-->
         {{display()}}<!--旗は出る-->
-        {{bomb}}
     </div>
     
 </template>
@@ -50,7 +49,7 @@ export default class Cell extends Vue{
         return array;
     }
 
-    establish(x: number, y: number){
+    establish(x: number, y: number){//それぞれのセルごとで行われるから入力よりも多くなってしまう
         for (var i = 0; i < this.x; i++) {
         while (true) {
             var a = Math.floor(Math.random() * this.x);
@@ -78,7 +77,7 @@ export default class Cell extends Vue{
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
         this.digged = true;
-        this.$emit('update'); //CellからGameに
+        if(this.bomb){this.$emit('update'); }//CellからGameに
     }
 
     mark(){

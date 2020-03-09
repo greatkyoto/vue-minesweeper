@@ -112,7 +112,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     }
 
     recount(){//なんの関数か？
-        
+        this.status='failured';
     }
 
     bombEastablish(){
