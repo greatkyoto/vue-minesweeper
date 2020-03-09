@@ -71,7 +71,9 @@ const components = {
     'cell': Cell
 };
 
-@Component({components})//コンポーネントの宣言 
+@Component({
+    components: {Cell}//これって書く必要あるのか？
+})
 export default class Game extends Vue{ //Gameと言うクラススタイルVueコンポーネントを宣言
     readonly digged!: boolean;
 
@@ -114,7 +116,8 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     }
 
     bombEastablish(){
-        this.$refs.cells.establish();
+        var saibous: any = this.$refs.cells;
+        saibous.establish();//establish自体に問題があるわけではなく、インポート自体に問題がある
     }
 
     start(){
