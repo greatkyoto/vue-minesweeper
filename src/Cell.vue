@@ -25,7 +25,7 @@ import Component from "vue-class-component";//TypeScriptでコンポーネント
 import {Status} from './Game.vue';
 
 @Component({
-    props: ['status', 'arounds', 'x', 'y']
+    props: ['status', 'arounds', 'x', 'y'] //'bomb','width','height']
 })//GameからCellに　続けて定義しているクラスをVueが認識できる形式に変換
 
 export default class Cell extends Vue{
@@ -33,8 +33,11 @@ export default class Cell extends Vue{
     readonly arounds!: Cell[];
     readonly x!: number;
     readonly y!: number;
+    // readonly bomb!: number;//これだとセルが持ってることになっちゃうから、やっぱgameで？
+    // readonly width!: number;
+    // readonly height!: number;
 
-    bomb: boolean = false;
+    bombed: boolean = false;
     digged: boolean = false;
     marked: boolean = false;
 
@@ -49,39 +52,37 @@ export default class Cell extends Vue{
     }
 
     get aroundBombsNumber(){//周辺の爆弾の数を返す物　//gatherAroundCellsをGameから取得
-        var array = this.arounds.filter(element => element.bomb=true).length;//ボムがある周りのます自体をarrayに代入　そしてarrayの数を出力する
+        var array = this.arounds.filter(element => element.bombed=true).length;//ボムがある周りのます自体をarrayに代入　そしてarrayの数を出力する
         return array;
     }
 
-    establish(x: number, y: number){//それぞれのセルごとで行われるから入力よりも多くなってしまう
-        for (var i = 0; i < this.x; i++) {
-        while (true) {
-            var a = Math.floor(Math.random() * this.x);
-            var b = Math.floor(Math.random() * this.y);
-            if (!this.bomb) {
-                this.bomb = true;
-                break;
-            }
-        }
-        }
-    }
+    // establish(x: number, y: number){//それぞれのセルごとで行われるから入力よりも多くなってしまう
+    //     for (var i = 0; i < this.bomb; i++) {//ここはこのまま
+    //         while (true) {//ここもこのまま
+    //             var a = Math.floor(Math.random() * this.height);//このa,bの座標を
+    //             var b = Math.floor(Math.random() * this.width);
+    //             if (!this.bombed) {//ここに入れたい
+    //                 this.bombed = true;
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
 
     display(){//マスに表示するマーク、爆弾、周辺の爆弾の数
         if(this.marked) return '🚩';//機能している
         if(this.digged){//!外した
-            if(this.bomb) return '💥';//機能してない　爆弾が配置されていないから
+            if(this.bombed) return '💥';//機能してない　爆弾が配置されていないから
             return this.aroundBombsNumber || '';//||は何を指すのか
         }
-
         return '';
     }
-
 
     dig(){
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
         this.digged = true;
-        if(this.bomb){
+        if(this.bombed){
             this.$emit('update'); 
         }//CellからGameに
     }

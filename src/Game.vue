@@ -75,15 +75,30 @@ const components = {
 })
 export default class Game extends Vue{ //Gameと言うクラススタイルVueコンポーネントを宣言
     readonly digged!: boolean;
+    readonly bombed!: boolean;
 
     status: Status = 'preparing';//初めの状態
     width: number = 5;
     height: number = 5;
     bomb: number = 5;
-    opened: number = 0;
+    opened: Cell[] = [];
 
     beforeCreate(){//それともこれで
 
+    }
+
+    establish(x: number, y: number){//それぞれのセルごとで行われるから入力よりも多くなってしまう
+        const cells: any = this.$refs.cells;
+        for (var i = 0; i < this.bomb; i++) {//ここはこのまま
+            while (true) {//ここもこのまま
+                var a = Math.floor(Math.random() * this.height);//このa,bの座標を
+                var b = Math.floor(Math.random() * this.width);
+                if (!cells[a][b].bombed) {//ここに入れたい cell[a,b]みたいにしたい
+                    cells.bombed = true;
+                    break;
+                }
+            }
+        }
     }
 
     created(){//void型　つまり何も返さない　ライフサイクルフック　インスタンス作成されたら
@@ -95,7 +110,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
 
     private getCells(): Cell[]{//cellを全て取得して、配列の中に
         const cells = this.$refs.cells;//配置したコンポーネントを動的に取得して、スタイルとかプロパティを取得して弄ったり、処理を実行させたりコンポーネントインスタンスcells
-        if(cells instanceof Array) return cells as Cell[];//cellsがArrayクラスに属する場合は
+        if(cells instanceof Array) return cells as Cell[];//cellsがArrayクラスに属する場合は　ダウンキャスト
         if(cells instanceof Cell) return [cells];//cellsがCellクラスに属する場合は
         return [];
     }
@@ -115,10 +130,10 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         this.status='failured';
     }
 
-    bombEastablish(){//: Cell[]付けろってことかな？　getCellsを参考に
-        var children: any = this.$refs.cells;
-        children.establish();//establish自体に問題があるわけではなく、インポート自体に問題がある
-    }
+    // bombEastablish(){//: Cell[]付けろってことかな？　getCellsを参考に
+    //     var children: any = this.$refs.cells;
+    //     children.establish();//establish自体に問題があるわけではなく、インポート自体に問題がある
+    // }
 
     start(){
         //ここでestablish関数を呼び出して、爆弾をランダム配置したいy　refsを使用して、実装可能
@@ -132,14 +147,21 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
 
     reset(){
         this.status = 'preparing';
-        let board: any = document.getElementsByTagName("cell");// tableごと消すとまずいかな？
-        for (let b: number = board.childNodes.length - 1; b >= 0; b--) {
+        let board: any = document.getElementsByTagName("cell");//これはあってる
+        for (let b: any = board.childNodes.length - 1; b >= 0; b--) {
              board.removeChild(board.childNodes[b]);
         }//ここに前回のますを削除する
     }
 
+    open(){
+        // const cells = this.$refs.cells;//全部のcellを取り寄せて、その中から、diggedがtrueのものをopenedにpush 
+        // if(cells.digged)
+        // this.opened.push();
+    }
+
     finish(){//このほかに開けたますをopenedに追加する関数
-        if(this.opened==this.width*this.height-this.bomb){
+
+        if(this.opened.length==this.width*this.height-this.bomb){
             this.status='successed';
             
         }
