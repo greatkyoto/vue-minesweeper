@@ -51,8 +51,7 @@ main {
                     :arounds="gatherAroundCells(x, y)"
                     :x="x"
                     :y="y"
-                    @update="recount()"
-                    @gather="gatherAroundCells()"><!--aroundsはただ単に近接した８マスを集めた物-->
+                    @update="recount()"><!--aroundsはただ単に近接した８マスを集めた物-->
                 </cell><!--cellタグはcellコンポーネントから-->
             </td>
         </tr>
@@ -83,12 +82,13 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     bomb: number = 5;
     opened: number = 0;
 
-    created(){
-        document.title = 'Game'; //タイトル設定
+    beforeCreate(){//それともこれで
+
     }
 
-    
-
+    created(){//void型　つまり何も返さない　ライフサイクルフック　インスタンス作成されたら
+        document.title = 'Game'; //タイトル設定
+    }
     get title(): string{//ゲッター　参照のみ　statusの状態で書き換え
         return "MineSweeper";
     }
@@ -115,9 +115,9 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         this.status='failured';
     }
 
-    bombEastablish(){
-        var saibous: any = this.$refs.cells;
-        saibous.establish();//establish自体に問題があるわけではなく、インポート自体に問題がある
+    bombEastablish(){//: Cell[]付けろってことかな？　getCellsを参考に
+        var children: any = this.$refs.cells;
+        children.establish();//establish自体に問題があるわけではなく、インポート自体に問題がある
     }
 
     start(){
@@ -126,19 +126,20 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     }
 
     giveup(){
-        this.status = 'failured';
+        this.status = 'failured';//この後にセルを削除するコードを
         
     }
 
     reset(){
         this.status = 'preparing';
-        const cells = this.$refs.cells;
-        //cells.digged= 'false'　代案：全てのcellの真偽値を
-        //ここに前回のますを削除する
+        let board: any = document.getElementsByTagName("cell");// tableごと消すとまずいかな？
+        for (let b: number = board.childNodes.length - 1; b >= 0; b--) {
+             board.removeChild(board.childNodes[b]);
+        }//ここに前回のますを削除する
     }
 
     finish(){//このほかに開けたますをopenedに追加する関数
-        if(this.opened==this.width*this.height){
+        if(this.opened==this.width*this.height-this.bomb){
             this.status='successed';
             
         }

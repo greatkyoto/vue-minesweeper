@@ -38,6 +38,10 @@ export default class Cell extends Vue{
     digged: boolean = false;
     marked: boolean = false;
 
+    // beforeCreate(){
+    //     this.digged=false;
+    // }
+
     get mutable(){//get = computed のこと statusを取得するためのメソッド
         if(this.status != 'playing') return false;//プレイ中じゃなきゃfalseで実行できない
         if(this.digged) return false;//掘ってても実行できない
@@ -77,7 +81,9 @@ export default class Cell extends Vue{
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
         this.digged = true;
-        if(this.bomb){this.$emit('update'); }//CellからGameに
+        if(this.bomb){
+            this.$emit('update'); 
+        }//CellからGameに
     }
 
     mark(){
