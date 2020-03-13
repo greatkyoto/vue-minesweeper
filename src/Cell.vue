@@ -45,6 +45,12 @@ export default class Cell extends Vue{
     //     this.digged=false;
     // }
 
+    init(){
+        this.bombed=false;
+        this.digged=false;
+        this.marked=false;
+    }
+
     get mutable(){//get = computed のこと statusを取得するためのメソッド
         if(this.status != 'playing') return false;//プレイ中じゃなきゃfalseで実行できない
         if(this.digged) return false;//掘ってても実行できない
@@ -73,7 +79,7 @@ export default class Cell extends Vue{
         if(this.marked) return '🚩';//機能している
         if(this.digged){//!外した
             if(this.bombed) return '💥';//機能してない　爆弾が配置されていないから
-            return this.aroundBombsNumber || '';//||は何を指すのか
+            return this.aroundBombsNumber || '';
         }
         return '';
     }
@@ -91,5 +97,7 @@ export default class Cell extends Vue{
         if(!this.mutable) return;
         this.marked = !this.marked;
     }
+
+
 }
 </script>

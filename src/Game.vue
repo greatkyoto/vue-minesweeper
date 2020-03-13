@@ -42,7 +42,7 @@ main {
         <button v-else-if="status == 'playing'" @click="giveup">Giveup</button>
         <button v-else @click="reset">Reset</button>
     </div>
-    <table>
+    <table id="table">
         <tr v-for="y in height" :key="y"><!--指定した回数表示を繰り返す　v-bind:key="y"-->
             <td v-for="x in width" :key="x">
                 <cell
@@ -83,19 +83,22 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     bomb: number = 5;
     opened: Cell[] = [];
 
-    beforeCreate(){//それともこれで
-
-    }
 
     establish(x: number, y: number){//それぞれのセルごとで行われるから入力よりも多くなってしまう
         const cells: any = this.$refs.cells;
-        for (var i = 0; i < this.bomb; i++) {//ここはこのまま
-            while (true) {//ここもこのまま
-                var a = Math.floor(Math.random() * this.height);//このa,bの座標を
-                var b = Math.floor(Math.random() * this.width);
-                if (!cells[a][b].bombed) {//ここに入れたい cell[a,b]みたいにしたい
-                    cells.bombed = true;
-                    break;
+        if(cells instanceof Array) return cells as Cell[];//cellsがArrayクラスに属する場合は　ダウンキャスト
+        if(cells instanceof Cell) return [cells];
+        const array =[cells];
+        for(let q = array.length - 1; q >= 0; q--){
+            const cell: any = array[q];//b番目のセルをリセットしまくる
+            for (var i = 0; i < this.bomb; i++) {//ここはこのまま
+                while (true) {//ここもこのまま
+                    var a = Math.floor(Math.random() * this.height);//このa,bの座標を
+                    var b = Math.floor(Math.random() * this.width);
+                    if (!cell[a][b].bombed) {//ここに入れたい cell[a,b]みたいにしたい
+                        cell.bombed = true;
+                        break;
+                    }
                 }
             }
         }
@@ -147,25 +150,26 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
 
     reset(){
         this.status = 'preparing';
-        let board: any = document.getElementsByTagName("cell");//これはあってる
-        for (let b: any = board.childNodes.length - 1; b >= 0; b--) {
-             board.removeChild(board.childNodes[b]);
-        }//ここに前回のますを削除する
+        const cells: any = this.$refs.cells;//配置したコンポーネントを動的に取得して、スタイルとかプロパティを取得して弄ったり、処理を実行させたり cellsオブジェクト
+        const array=this.getCells();//各cellsコンポーネントが入った、配列　ここでgetcellを呼び出す
+        for(let b = array.length - 1; b >= 0; b--){
+            const cell = array[b];//b番目のセルをリセットしまくる
+            cell.init();
+        }
+        
     }
 
     open(){
-        // const cells = this.$refs.cells;//全部のcellを取り寄せて、その中から、diggedがtrueのものをopenedにpush 
-        // if(cells.digged)
-        // this.opened.push();
-    }
-
-    finish(){//このほかに開けたますをopenedに追加する関数
-
-        if(this.opened.length==this.width*this.height-this.bomb){
-            this.status='successed';
-            
+        const cells: any = this.$refs.cells;//全部のcellを取り寄せて、その中から、diggedがtrueのものをopenedにpush 
+        if(cells.digged){
+            this.opened.push(cells);
         }
     }
 
+    finish(){//このほかに開けたますをopenedに追加する関数
+        if(this.opened.length==this.width*this.height-this.bomb){
+            this.status='successed';
+        }
+    }
 }
 </script>
