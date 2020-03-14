@@ -2,7 +2,7 @@
 * {
     box-sizing: border-box;
     padding: 0;
-    margin: 0;
+    margin: 0　auto;
     border: none;
     box-shadow: none;
     background: none;
@@ -30,6 +30,11 @@ main {
 <main>
     <h1>{{title}}</h1><!--computedの呼び出しだから（）ない-->
     <div>
+        <h2>ルール</h2>
+        <ol>
+            <li>マス数の入力値は、３〜３０の数値にしてください</li>
+            <li>爆弾数の入力値は、１以上で、マス数の縦横の積以下にしてください</li>
+        </ol>
         <p>
             <input type="number" v-model.number="width" :min="3" :max="30" :disabled="status != 'preparing'" />
             x
@@ -88,13 +93,13 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     establish(x: number, y: number){//それぞれのセルごとで行われるから入力よりも多くなってしまう
         const array=this.getCells();
         for(let q = array.length - 1; q >= 0; q--){
-            const cell = array[q];//b番目のセルをリセットしまくる
-            for (var i = 0; i < this.bomb; i++) {//ここはこのまま
+            const cell = array[q];
+            for (let i = 0; i < this.bomb; i++) {//ここはこのまま
                 while (true) {//ここもこのまま
-                    var a = Math.floor(Math.random() * this.height);//爆弾を入れるx,yを作成
-                    var b = Math.floor(Math.random() * this.width);
-                    if (!cell[a][b].bombed) {
-                        cell[a][b].bombed = true;
+                    let a = Math.floor(Math.random() * this.height);//爆弾を入れるx,yを作成
+                    let b = Math.floor(Math.random() * this.width);
+                    if (cell.x==a && cell.y==b && !cell.bombed) {//だめ　cellをcell[a][b]としたい
+                        cell.bombed = true;//cell.x
                         break;
                     }
                 }
@@ -127,7 +132,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         });
     }
 
-    recount(){//ゲーム終了　全てのセルオープン
+    recount(){//ゲーム終了　全てのセルオープン　完成
         const array=this.getCells();
         for(let b = array.length - 1; b >= 0; b--){
             const cell = array[b];//b番目のセルをリセットしまくる
@@ -137,15 +142,22 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     }
 
     start(){
-        //ここでestablish関数を呼び出して、爆弾をランダム配置したいy　refsを使用して、実装可能
-        this.status = 'playing';
+        if(this.bomb!=null && this.height!=null && this.width!=null){
+            if (this.bomb > 0 && this.height > 0 && this.width > 0 && this.bomb < this.width * this.height) {
+                this.status = 'playing';
+            }else{
+                alert("入力値はルールに則ってください");
+            }
+        }else{
+            alert("全て入力してください");
+        }
     }
 
     giveup(){
         this.status = 'failured';//この後にセルを削除するコードを    
     }
 
-    reset(){
+    reset(){//完成
         this.status = 'preparing';//配置したコンポーネントを動的に取得して、スタイルとかプロパティを取得して弄ったり、処理を実行させたり cellsオブジェクト
         const array=this.getCells();//各cellsコンポーネントが入った、配列　ここでgetcellを呼び出す
         for(let b = array.length - 1; b >= 0; b--){
