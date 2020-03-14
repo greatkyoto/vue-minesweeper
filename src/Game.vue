@@ -51,7 +51,8 @@ main {
                     :arounds="gatherAroundCells(x, y)"
                     :x="x"
                     :y="y"
-                    @update="recount()"><!--aroundsはただ単に近接した８マスを集めた物-->
+                    @update="recount()"
+                    @open="open()"><!--aroundsはただ単に近接した８マスを集めた物-->
                 </cell><!--cellタグはcellコンポーネントから-->
             </td>
         </tr>
@@ -85,18 +86,15 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
 
 
     establish(x: number, y: number){//それぞれのセルごとで行われるから入力よりも多くなってしまう
-        const cells: any = this.$refs.cells;
-        if(cells instanceof Array) return cells as Cell[];//cellsがArrayクラスに属する場合は　ダウンキャスト
-        if(cells instanceof Cell) return [cells];
-        const array =[cells];
+        const array=this.getCells();
         for(let q = array.length - 1; q >= 0; q--){
-            const cell: any = array[q];//b番目のセルをリセットしまくる
+            const cell = array[q];//b番目のセルをリセットしまくる
             for (var i = 0; i < this.bomb; i++) {//ここはこのまま
                 while (true) {//ここもこのまま
-                    var a = Math.floor(Math.random() * this.height);//このa,bの座標を
+                    var a = Math.floor(Math.random() * this.height);//爆弾を入れるx,yを作成
                     var b = Math.floor(Math.random() * this.width);
-                    if (!cell[a][b].bombed) {//ここに入れたい cell[a,b]みたいにしたい
-                        cell.bombed = true;
+                    if (!cell[a][b].bombed) {
+                        cell[a][b].bombed = true;
                         break;
                     }
                 }
@@ -129,14 +127,14 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         });
     }
 
-    recount(){//なんの関数か？
-        this.status='failured';
+    recount(){//ゲーム終了　全てのセルオープン
+        const array=this.getCells();
+        for(let b = array.length - 1; b >= 0; b--){
+            const cell = array[b];//b番目のセルをリセットしまくる
+            cell.digged=true;
+        }
+        this.giveup();
     }
-
-    // bombEastablish(){//: Cell[]付けろってことかな？　getCellsを参考に
-    //     var children: any = this.$refs.cells;
-    //     children.establish();//establish自体に問題があるわけではなく、インポート自体に問題がある
-    // }
 
     start(){
         //ここでestablish関数を呼び出して、爆弾をランダム配置したいy　refsを使用して、実装可能
@@ -144,31 +142,28 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     }
 
     giveup(){
-        this.status = 'failured';//この後にセルを削除するコードを
-        
+        this.status = 'failured';//この後にセルを削除するコードを    
     }
 
     reset(){
-        this.status = 'preparing';
-        const cells: any = this.$refs.cells;//配置したコンポーネントを動的に取得して、スタイルとかプロパティを取得して弄ったり、処理を実行させたり cellsオブジェクト
+        this.status = 'preparing';//配置したコンポーネントを動的に取得して、スタイルとかプロパティを取得して弄ったり、処理を実行させたり cellsオブジェクト
         const array=this.getCells();//各cellsコンポーネントが入った、配列　ここでgetcellを呼び出す
         for(let b = array.length - 1; b >= 0; b--){
             const cell = array[b];//b番目のセルをリセットしまくる
             cell.init();
         }
-        
     }
 
-    open(){
-        const cells: any = this.$refs.cells;//全部のcellを取り寄せて、その中から、diggedがtrueのものをopenedにpush 
-        if(cells.digged){
-            this.opened.push(cells);
-        }
-    }
-
-    finish(){//このほかに開けたますをopenedに追加する関数
-        if(this.opened.length==this.width*this.height-this.bomb){
-            this.status='successed';
+    open(){//成功した場合のゲーム終了関数 仮かんせい
+        const array=this.getCells();;//全部のcellを取り寄せて、その中から、diggedがtrueのものをopenedにpush 
+        for(let b = array.length - 1; b >= 0; b--){
+            const cell = array[b];//b番目のセルをリセットしまくる
+            if(cell.digged){
+                this.opened.push(cell);
+            }
+            if(this.opened.length==this.width*this.height-this.bomb){
+                this.status='successed';
+            }
         }
     }
 }

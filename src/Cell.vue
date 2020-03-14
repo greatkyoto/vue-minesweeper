@@ -90,6 +90,8 @@ export default class Cell extends Vue{
         this.digged = true;
         if(this.bombed){
             this.$emit('update'); 
+        }else{
+            this.$emit('open')
         }//CellからGameに
     }
 
