@@ -33,9 +33,7 @@ export default class Cell extends Vue{
     readonly arounds!: Cell[];
     readonly x!: number;
     readonly y!: number;
-    // readonly bomb!: number;//これだとセルが持ってることになっちゃうから、やっぱgameで？
-    // readonly width!: number;
-    // readonly height!: number;
+
 
     bombed: boolean = false;
     digged: boolean = false;

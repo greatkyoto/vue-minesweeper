@@ -43,7 +43,7 @@ main {
         <p>
             💣：<input type="number" v-model.number="bomb" :min="1" :max="width * height" :disabled="status != 'preparing'" />
         </p>
-        <button v-if="status == 'preparing'" @click="start">Start</button>
+        <button v-if="status == 'preparing'" v-on:click="start()">Start</button>
         <button v-else-if="status == 'playing'" @click="giveup">Giveup</button>
         <button v-else @click="reset">Reset</button>
     </div>
@@ -57,8 +57,8 @@ main {
                     :x="x"
                     :y="y"
                     @update="recount()"
-                    @open="open()"><!--aroundsはただ単に近接した８マスを集めた物-->
-                </cell><!--cellタグはcellコンポーネントから-->
+                    @open="open()">
+                </cell>
             </td>
         </tr>
     </table>
@@ -90,23 +90,6 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     opened: Cell[] = [];
 
 
-    establish(x: number, y: number){//それぞれのセルごとで行われるから入力よりも多くなってしまう
-        const array=this.getCells();
-        for(let q = array.length - 1; q >= 0; q--){
-            const cell = array[q];
-            for (let i = 0; i < this.bomb; i++) {//ここはこのまま
-                while (true) {//ここもこのまま
-                    let a = Math.floor(Math.random() * this.height);//爆弾を入れるx,yを作成
-                    let b = Math.floor(Math.random() * this.width);
-                    if (cell.x==a && cell.y==b && !cell.bombed) {//だめ　cellをcell[a][b]としたい
-                        cell.bombed = true;//cell.x
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
     created(){//void型　つまり何も返さない　ライフサイクルフック　インスタンス作成されたら
         document.title = 'Game'; //タイトル設定
     }
@@ -132,6 +115,23 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         });
     }
 
+    establish(){
+        const array=this.getCells();//全てのセルコンポーネントから作成されたものの配列[cells]を取得
+        for(let q = array.length - 1; q >= 0; q--){//0~qまでの要素に対して
+            const cell = array[q];//cells配列のq番目 cellクラスに属する一個一個のcell
+            for (let i = 0; i < this.bomb; i++) {//入力値の数値になるまで爆弾入力の処理を繰り返す
+                while (true) {//trueのかぎり繰り返し
+                    let a = Math.floor(Math.random() * this.height);//爆弾を入れるセルの座標を決定
+                    let b = Math.floor(Math.random() * this.width);
+                    if (cell.x==a && cell.y==b && !cell.bombed) {//a,b座標のcellに爆弾がなければ
+                        cell.bombed = true;//cellをx,y座標で区別して、そこに爆弾を配置
+                        break;//配置したらループ打ち切ってfor i にもどる
+                    }
+                }
+            }
+        }
+    }
+
     recount(){//ゲーム終了　全てのセルオープン　完成
         const array=this.getCells();
         for(let b = array.length - 1; b >= 0; b--){
@@ -141,7 +141,8 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         this.giveup();
     }
 
-    start(){
+
+    start(){//完成
         if(this.bomb!=null && this.height!=null && this.width!=null){
             if (this.bomb > 0 && this.height > 0 && this.width > 0 && this.bomb < this.width * this.height) {
                 this.status = 'playing';
@@ -153,7 +154,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     }
 
-    giveup(){
+    giveup(){//完成
         this.status = 'failured';//この後にセルを削除するコードを    
     }
 
@@ -166,8 +167,8 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     }
 
-    open(){//成功した場合のゲーム終了関数 仮かんせい
-        const array=this.getCells();;//全部のcellを取り寄せて、その中から、diggedがtrueのものをopenedにpush 
+    open(){//成功した場合のゲーム終了関数 仮かんせい opened++でも良さそう
+        const array=this.getCells();//全部のcellを取り寄せて、その中から、diggedがtrueのものをopenedにpush 
         for(let b = array.length - 1; b >= 0; b--){
             const cell = array[b];//b番目のセルをリセットしまくる
             if(cell.digged){
