@@ -29,7 +29,7 @@ import {Status} from './Game.vue';
 })//GameからCellに　続けて定義しているクラスをVueが認識できる形式に変換
 
 export default class Cell extends Vue{
-    readonly status!:Status;//data
+    readonly status!:Status;//　!はnull/undefinedではないことを意味している
     readonly arounds!: Cell[];
     readonly x!: number;
     readonly y!: number;
