@@ -81,7 +81,7 @@ const components = {
 })
 export default class Game extends Vue{ //Gameと言うクラススタイルVueコンポーネントを宣言
     readonly digged!: boolean;//!はnull/undefinedではないことを意味している
-    readonly bombed!: boolean;//これreadonlyだから、爆弾の真偽値Gameの中でいじれないよね？
+    bombed!: boolean;//これreadonlyだから、爆弾の真偽値Gameの中でいじれないよね？
 
     status: Status = 'preparing';//初めの状態
     width: number = 5;

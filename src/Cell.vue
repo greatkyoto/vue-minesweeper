@@ -52,14 +52,14 @@ export default class Cell extends Vue{
     }
 
     get aroundBombsNumber(){//周辺の爆弾の数を返す物　//gatherAroundCellsをGameから取得
-        let array = this.arounds.filter(element => element.bombed=true).length;//ボムがある周りのます自体をarrayに代入　そしてarrayの数を出力する
+        let array = this.arounds.filter(element => element.bombed==true).length;//ボムがある周りのます自体をarrayに代入　そしてarrayの数を出力する
         return array;
     }
 
     display(){//マスに表示するマーク、爆弾、周辺の爆弾の数
         if(this.marked) return '🚩';
         if(this.digged){//!外した
-            if(this.bombed) return '💥';
+            if(this.bombed==true) return '💥';
             return this.aroundBombsNumber || '';
         }
         return '';
@@ -69,7 +69,7 @@ export default class Cell extends Vue{
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
         this.digged = true;
-        if(this.bombed){
+        if(this.bombed==true){
             this.$emit('update'); 
         }else{
             this.$emit('open')
