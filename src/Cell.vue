@@ -25,7 +25,7 @@ import Component from "vue-class-component";//TypeScriptでコンポーネント
 import {Status} from './Game.vue';
 
 @Component({
-    props: ['status', 'arounds', 'x', 'y'] 
+    props: ['status', 'arounds', 'x', 'y','width','height'] 
 })//GameからCellに　続けて定義しているクラスをVueが認識できる形式に変換
 
 export default class Cell extends Vue{
@@ -33,7 +33,10 @@ export default class Cell extends Vue{
     readonly arounds!: Cell[];
     readonly x!: number;
     readonly y!: number;
-
+    clickCount!: number;
+    readonly width!: number;
+    readonly height!: number;
+    readonly bomb!: number;
 
     bombed: boolean = false;
     digged: boolean = false;
@@ -68,12 +71,34 @@ export default class Cell extends Vue{
     dig(){
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
-        this.digged = true;
-        if(this.bombed==true){
-            this.$emit('update'); 
-        }else{
+        this.clickCount++;
+        if(this.clickCount==1&&this.bombed==true){//爆弾があって、1回目の時
+            this.bombed=false;//edit()で消してるからいらないかも
+            this.$emit('edit');
+            let array2: Cell[]=[];
+            while(array2.length!=this.bomb){
+                let a = Math.floor(Math.random() * this.width +1);
+                let b = Math.floor(Math.random() * this.height +1);
+                if(this.x==a&&this.y==b){//クリックされたx,yと同じ座標のcellだったら何もせず、それ以外のますで、爆弾がなければ設置する
+                }else{
+                    let array: unknown=this.$emit("collect") ;
+                    let cell=(array as Cell[]).find(element=>element.x==a&&element.y==b)
+                    if(cell!=undefined){
+                        if(cell.bombed==false){
+                            cell.bombed=true;
+                            array2.push(cell);
+                        }
+                    }
+                    this.digged = true;
+                }
+            }   
+        }else if(this.bombed==true){//ここはOK　カウント２以上で爆弾掘った時の処置
+            this.digged = true;
+            this.$emit('update');
+        }else{//爆弾がない時の処置
+            this.digged = true;
             this.$emit('open')
-        }//CellからGameに
+        }
     }
 
     mark(){

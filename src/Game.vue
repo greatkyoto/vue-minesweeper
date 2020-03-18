@@ -57,7 +57,9 @@ main {
                     :x="x"
                     :y="y"
                     @update="recount()"
-                    @open="open()">
+                    @open="open()"
+                    @edit="edit()"
+                    @collect="getCells()">
                 </cell>
             </td>
         </tr>
@@ -81,8 +83,8 @@ const components = {
 })
 export default class Game extends Vue{ //Gameと言うクラススタイルVueコンポーネントを宣言
     readonly digged!: boolean;//!はnull/undefinedではないことを意味している
-    readonly bombed!: boolean;//これreadonlyだから、爆弾の真偽値Gameの中でいじれないよね？
-
+    bombed!: boolean;//これreadonlyだから、爆弾の真偽値Gameの中でいじれないよね？
+    
     status: Status = 'preparing';//初めの状態
     width: number = 5;
     height: number = 5;
@@ -120,7 +122,6 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         let array=this.getCells();
         let array2: Cell[]=[];
         while(array2.length!=this.bomb){//爆弾の置く個数分ランダム生成は必要
-            console.log(array2)
             let a = Math.floor(Math.random() * this.width +1);
             let b = Math.floor(Math.random() * this.height +1);
             let cell=array.find(element=>element.x==a&&element.y==b)
@@ -131,8 +132,19 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
                 }
             }  
         }
-    }    
-
+    }
+    
+    edit(){
+        let array=this.getCells();
+        for(let b = array.length - 1; b >= 0; b--){
+            const cell = array[b];
+            cell.bombed=false;
+        }//一旦ここで切って
+    }
+    
+    collect(){
+        let array=this.getCells();
+    }
 
     recount(){//ゲーム終了　全てのセルオープン　完成
         const array=this.getCells();
@@ -160,12 +172,11 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
 
     giveup(){//完成
         this.status = 'failured';//この後にセルを削除するコードを    
-        
     }
 
     reset(){//完成
+        this.clickCount=0;//clickCountをゼロに
         this.status = 'preparing';//配置したコンポーネントを動的に取得して、スタイルとかプロパティを取得して弄ったり、処理を実行させたり cellsオブジェクト
-
         const array=this.getCells();//各cellsコンポーネントが入った、配列　ここでgetcellを呼び出す
         for(let b = array.length - 1; b >= 0; b--){
             const cell = array[b];//b番目のセルをリセットしまくる
@@ -182,11 +193,13 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
                     cell.dig();
                 }
                 this.opened++;//これ書き換え必要
-                if(this.opened==this.width*this.height-this.bomb){
+                if(this.opened==(this.width*this.height-this.bomb)){
                     this.status='successed';
                 }
             }            
         }
     }
+
+
 }
 </script>
