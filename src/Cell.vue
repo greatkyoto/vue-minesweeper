@@ -83,7 +83,7 @@ export default class Cell extends Vue{
                 let b = Math.floor(Math.random() * this.height +1);
                 if(a==this.x&&b==this.y){//クリックされたx,yと同じ座標のcellだったら他の座標が生成され、array2の長さがbombと一致するまでは繰り返し、それ以外のますで、爆弾がなければ設置する
                 }else{
-                    this.$emit('put',{a:'x' , b:'y'})
+                    this.$emit('put',{x:a , y:b})
                     indicator=indicator++;
                 }
             }
@@ -91,8 +91,14 @@ export default class Cell extends Vue{
             this.digged = true;
             this.$emit('update');
         }else{//爆弾がない時の処置
-            this.digged = true;
-            this.$emit('open')
+            if(this.arounds.length==0){
+                this.digged = true;
+                this.$emit('open')
+                this.$emit('hatch',{x:this.x,y:this.y})
+            }else{
+                this.digged = true;
+                this.$emit('open')
+            }
         }
     }
 

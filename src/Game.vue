@@ -60,7 +60,7 @@ main {
                     @put="put()"
                     @open="open()"
                     @edit="edit()"
-                    @collect="getCells()">
+                    @hatch="hatch()">
                 </cell>
             </td>
         </tr>
@@ -91,7 +91,6 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     height: number = 5;
     bomb: number = 5;
     opened: number = 0;
-    // count: number=0;
     array3: Cell[]=[];
     
     created(){//void型　つまり何も返さない　ライフサイクルフック　インスタンス作成されたら
@@ -146,13 +145,12 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     }
 
-    put(a:number,b:number){
+    put(a:number,b:number){//作成した座標にマッチするセルにボム
         let array=this.getCells();
         let cell = array.find(element=>element.x==a && element.y==b) 
         if(cell!=undefined){
             cell.bombed=true;
         }
-               
     }
     
     
@@ -166,6 +164,8 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
         this.giveup();
     }
+
+    
 
 
     start(){//完成
@@ -197,20 +197,30 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     }
 
-    open(){//成功した場合のゲーム終了関数 仮かんせい opened++でも良さそう あとは爆弾がない隣接したマスをを一緒に開ける             
+
+
+    open(){//成功した場合のゲーム終了関数 成功パターンの終了指標管理
         this.opened=this.opened+1;
-        console.log(this.opened)
         if(this.opened==((this.width*this.height)-this.bomb)){
             this.status='successed';
             this.array3.length=0;
             this.opened=0;
-            // const array=this.getCells();//各cellsコンポーネントが入った、配列　ここでgetcellを呼び出す
-            // for(let b = array.length - 1; b >= 0; b--){
-            //     const cell = array[b];
-            //     cell.init();
-            // }
             alert("Congratulations")
         }
-    }            
+    } 
+    hatch(x:number,y:number){//周辺に爆弾がない場合の処理
+        for (var j = y - 1; j <= y + 1; j++) {//多分他のますの処理もするから引数でここのx,y渡してgameで実行
+            for (var i = x - 1; i <= x + 1; i++) {
+                const array=this.getCells();
+                let group=array.filter(cell=>{
+                        cell.x==i&&cell.y==j//周辺のます
+                });
+                for(let b = group.length - 1; b >= 0; b--){
+                    const c = array[b];//b番目のセルをリセットしまくる
+                    c.digged=true;
+                }
+            }
+        }
+    }           
 }
 </script>
