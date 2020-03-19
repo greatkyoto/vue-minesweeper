@@ -57,6 +57,7 @@ main {
                     :x="x"
                     :y="y"
                     @update="recount()"
+                    @touch="touch()"
                     @open="open()"
                     @edit="edit()"
                     @collect="getCells()">
@@ -90,7 +91,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     height: number = 5;
     bomb: number = 5;
     opened: number = 0;
-    clickCount: number=0;
+    count: number=0;
     
     created(){//void型　つまり何も返さない　ライフサイクルフック　インスタンス作成されたら
         document.title = 'Game'; //タイトル設定
@@ -120,6 +121,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
 
     establish(){
         let array=this.getCells();
+        //console.log(array)
         let array2: Cell[]=[];
         while(array2.length!=this.bomb){//爆弾の置く個数分ランダム生成は必要
             let a = Math.floor(Math.random() * this.width +1);
@@ -144,6 +146,19 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     
     collect(){
         let array=this.getCells();
+    }
+
+    touch(){
+        this.count=this.count+1;
+        // let array=this.getCells();
+        // let array2: Cell[]=[];
+        // let cell=array2.find(element=>element.check==1)
+        // if(cell!=undefined){
+        //     array2.push(cell)
+        //     if(array2.length==1&&cell.bombed==true){
+        //         cell.bombed=false;
+        //     }
+        // }
     }
 
     recount(){//ゲーム終了　全てのセルオープン　完成
@@ -175,7 +190,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     }
 
     reset(){//完成
-        this.clickCount=0;//clickCountをゼロに
+        //this.clickCount=0;//clickCountをゼロに
         this.status = 'preparing';//配置したコンポーネントを動的に取得して、スタイルとかプロパティを取得して弄ったり、処理を実行させたり cellsオブジェクト
         const array=this.getCells();//各cellsコンポーネントが入った、配列　ここでgetcellを呼び出す
         for(let b = array.length - 1; b >= 0; b--){

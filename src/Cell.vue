@@ -25,7 +25,7 @@ import Component from "vue-class-component";//TypeScriptでコンポーネント
 import {Status} from './Game.vue';
 
 @Component({
-    props: ['status', 'arounds', 'x', 'y','width','height'] 
+    props: ['status', 'arounds', 'x', 'y','width','height','count'] 
 })//GameからCellに　続けて定義しているクラスをVueが認識できる形式に変換
 
 export default class Cell extends Vue{
@@ -33,14 +33,15 @@ export default class Cell extends Vue{
     readonly arounds!: Cell[];
     readonly x!: number;
     readonly y!: number;
-    clickCount!: number;
+
     readonly width!: number;
     readonly height!: number;
     readonly bomb!: number;
-
+    readonly count!: number;
     bombed: boolean = false;
     digged: boolean = false;
     marked: boolean = false;
+    check: number=0;
 
     init(){
         this.bombed=false;
@@ -71,17 +72,22 @@ export default class Cell extends Vue{
     dig(){
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
-        this.clickCount++;
-        if(this.clickCount==1&&this.bombed==true){//爆弾があって、1回目の時
+        let array: unknown=this.$emit("collect") ;//ここら辺は怪しい
+                    
+        this.$emit('touch');
+        let check: unknown =this.$emit('touch'); 
+        console.log(check)
+        if((check as number)==1&&this.bombed==true){//カウント１の時は再配置
             this.bombed=false;//edit()で消してるからいらないかも
             this.$emit('edit');
             let array2: Cell[]=[];
             while(array2.length!=this.bomb){
                 let a = Math.floor(Math.random() * this.width +1);
                 let b = Math.floor(Math.random() * this.height +1);
-                if(this.x==a&&this.y==b){//クリックされたx,yと同じ座標のcellだったら何もせず、それ以外のますで、爆弾がなければ設置する
+                if(this.x==a&&this.y==b){//クリックされたx,yと同じ座標のcellだったらもう一回生成では？、それ以外のますで、爆弾がなければ設置する
                 }else{
-                    let array: unknown=this.$emit("collect") ;
+                    let array: unknown=this.$emit("collect") ;//ここら辺は怪しい
+                    console.log(array)
                     let cell=(array as Cell[]).find(element=>element.x==a&&element.y==b)
                     if(cell!=undefined){
                         if(cell.bombed==false){
