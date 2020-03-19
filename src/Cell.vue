@@ -33,8 +33,8 @@ export default class Cell extends Vue{
     readonly arounds!: Cell[];
     readonly x!: number;
     readonly y!: number;
-
     readonly width!: number;
+    readonly array3!: Cell[];
     readonly height!: number;
     readonly bomb!: number;
     readonly count!: number;
@@ -72,33 +72,22 @@ export default class Cell extends Vue{
     dig(){
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
-        let array: unknown=this.$emit("collect") ;//ここら辺は怪しい
-                    
-        this.$emit('touch');
-        let check: unknown =this.$emit('touch'); 
-        console.log(check)
-        if((check as number)==1&&this.bombed==true){//カウント１の時は再配置
-            this.bombed=false;//edit()で消してるからいらないかも
-            this.$emit('edit');
-            let array2: Cell[]=[];
-            while(array2.length!=this.bomb){
+        this.check++
+        this.$emit('edit');
+        let indicator: number=0;
+        if(this.bombed==true&&this.array3.length==1){//カウント１の時は再配置
+            this.bombed=false;
+            this.digged = true;
+            while(indicator!=1){
                 let a = Math.floor(Math.random() * this.width +1);
                 let b = Math.floor(Math.random() * this.height +1);
-                if(this.x==a&&this.y==b){//クリックされたx,yと同じ座標のcellだったらもう一回生成では？、それ以外のますで、爆弾がなければ設置する
+                if(a==this.x&&b==this.y){//クリックされたx,yと同じ座標のcellだったら他の座標が生成され、array2の長さがbombと一致するまでは繰り返し、それ以外のますで、爆弾がなければ設置する
                 }else{
-                    let array: unknown=this.$emit("collect") ;//ここら辺は怪しい
-                    console.log(array)
-                    let cell=(array as Cell[]).find(element=>element.x==a&&element.y==b)
-                    if(cell!=undefined){
-                        if(cell.bombed==false){
-                            cell.bombed=true;
-                            array2.push(cell);
-                        }
-                    }
-                    this.digged = true;
+                    this.$emit('put',{a:'x' , b:'y'})
+                    indicator=indicator++;
                 }
-            }   
-        }else if(this.bombed==true){//ここはOK　カウント２以上で爆弾掘った時の処置
+            }
+        }else if(this.bombed==true&&this.array3.length!=1){//ここはOK　カウント２以上で爆弾掘った時の処置
             this.digged = true;
             this.$emit('update');
         }else{//爆弾がない時の処置
