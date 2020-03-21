@@ -56,6 +56,9 @@ main {
                     :arounds="gatherAroundCells(x, y)"
                     :x="x"
                     :y="y"
+                    :width="width"
+                    :height="height"
+                    :array3="array3"
                     @update="recount()"
                     @put="put()"
                     @open="open()"
@@ -85,13 +88,13 @@ const components = {
 export default class Game extends Vue{ //Gameと言うクラススタイルVueコンポーネントを宣言
     readonly digged!: boolean;//!はnull/undefinedではないことを意味している
     bombed!: boolean;//これreadonlyだから、爆弾の真偽値Gameの中でいじれないよね？
-    
     status: Status = 'preparing';//初めの状態
     width: number = 5;
     height: number = 5;
     bomb: number = 5;
     opened: number = 0;
     array3: Cell[]=[];
+    
     
     created(){//void型　つまり何も返さない　ライフサイクルフック　インスタンス作成されたら
         document.title = 'Game'; //タイトル設定
@@ -145,11 +148,23 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     }
 
-    put(a:number,b:number){//作成した座標にマッチするセルにボム
+    put(c:number,d:number){//作成した座標にマッチするセルにボム
         let array=this.getCells();
-        let cell = array.find(element=>element.x==a && element.y==b) 
-        if(cell!=undefined){
-            cell.bombed=true;
+        console.log(c)
+        console.log(d)
+        let indicator: number=0;
+        while(indicator!=1){
+            let a = Math.floor(Math.random() * this.width +1);
+            let b = Math.floor(Math.random() * this.height +1);
+            if(a==c && b==d){
+
+            }else{
+                let cell = array.find(element=>element.x==a && element.y==b) 
+                if(cell!=undefined){
+                    cell.bombed=true;
+                }
+                indicator=indicator+1;
+            }
         }
     }
     
@@ -209,11 +224,12 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     } 
     hatch(x:number,y:number){//周辺に爆弾がない場合の処理
+    console.log(x)
         for (var j = y - 1; j <= y + 1; j++) {//多分他のますの処理もするから引数でここのx,y渡してgameで実行
             for (var i = x - 1; i <= x + 1; i++) {
                 const array=this.getCells();
                 let group=array.filter(cell=>{
-                        cell.x==i&&cell.y==j//周辺のます
+                        cell.x==i&&cell.y==j//周辺のます ここ帰る
                 });
                 for(let b = group.length - 1; b >= 0; b--){
                     const c = array[b];//b番目のセルをリセットしまくる
