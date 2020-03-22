@@ -179,9 +179,6 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         this.giveup();
     }
 
-    
-
-
     start(){//完成
         if(this.bomb!=null && this.height!=null && this.width!=null){
             if (this.bomb > 0 && this.height > 0 && this.width > 0 && this.bomb < this.width * this.height) {
@@ -221,18 +218,18 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
             alert("Congratulations")
         }
     } 
-    hatch(x:number,y:number){//周辺に爆弾がない場合の処理
-    console.log(x)
-        for (var j = y - 1; j <= y + 1; j++) {//多分他のますの処理もするから引数でここのx,y渡してgameで実行
-            for (var i = x - 1; i <= x + 1; i++) {
+    hatch(x:number,y:number){//周辺に爆弾がない場合の、周辺の爆弾の処理
+        for (let j = y - 1; j <= y + 1; j++) {//多分他のますの処理もするから引数でここのx,y渡してgameで実行
+            for (let i = x - 1; i <= x + 1; i++) {
                 const array=this.getCells();
                 let group=array.filter(cell=>{
-                        cell.x==i&&cell.y==j//周辺のます ここ帰る
+                        cell.x==i && (cell.x==i && cell.y==j) && cell.bombed==false && cell.digged==false//周辺で、空いてなくて、ボムのないものを配列に追加
                 });
                 for(let b = group.length - 1; b >= 0; b--){
-                    const c = array[b];//b番目のセルをリセットしまくる
+                    const c = array[b];
                     c.digged=true;
                 }
+                this.opened=this.opened+group.length; //周辺のますで開けたものの分をopenedに追加　クリックしたところはopen()で処理
             }
         }
     }           
