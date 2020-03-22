@@ -56,8 +56,6 @@ main {
                     :arounds="gatherAroundCells(x, y)"
                     :x="x"
                     :y="y"
-                    :width="width"
-                    :height="height"
                     :array3="array3"
                     @update="recount()"
                     @put="put()"
@@ -142,28 +140,29 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         let array=this.getCells();
         for(let b = array.length - 1; b >= 0; b--){
             const cell = array[b];
-            if(cell.check==1){//クリックされた回数が1回のものは
+            if(cell.checked==true){//クリックされた回数が1回のものは
                 this.array3.push(cell);//array３配列に追加　  ゲーム状態が成功or失敗となったら、array2は消す
             }
         }
     }
 
-    put(c:number,d:number){//作成した座標にマッチするセルにボム
+    put(x:number,y:number){//作成した座標にマッチするセルにボム
         let array=this.getCells();
-        console.log(c)
-        console.log(d)
         let indicator: number=0;
         while(indicator!=1){
             let a = Math.floor(Math.random() * this.width +1);
-            let b = Math.floor(Math.random() * this.height +1);
-            if(a==c && b==d){
-
+            let b = Math.floor(Math.random() * this.height +1);//a,bは生成されている
+            if( a==x && b==y ){
             }else{
-                let cell = array.find(element=>element.x==a && element.y==b) 
+                let cell = array.find(element=>element.x==a && element.y==b) //そこに爆弾がなければ
                 if(cell!=undefined){
-                    cell.bombed=true;
+                    if(cell.bombed==false){
+                        cell.bombed=true;
+                        console.log("ok")
+                        indicator=indicator+1;
+                    }else{
+                    }
                 }
-                indicator=indicator+1;
             }
         }
     }
@@ -201,7 +200,6 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     }
 
     reset(){//完成
-        //this.clickCount=0;//clickCountをゼロに
         this.array3.length=0;
         this.opened=0;
         this.status = 'preparing';//配置したコンポーネントを動的に取得して、スタイルとかプロパティを取得して弄ったり、処理を実行させたり cellsオブジェクト

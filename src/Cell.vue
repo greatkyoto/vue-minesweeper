@@ -31,8 +31,8 @@ import Game, {Status} from './Game.vue';
 export default class Cell extends Vue{
     readonly status!:Status;//　!はnull/undefinedではないことを意味している
     readonly arounds!: Cell[];
-    x!: number;
-    y!: number;
+    readonly x!: number;
+    readonly y!: number;
     readonly width!: number;
     readonly height!: number;
     
@@ -41,13 +41,13 @@ export default class Cell extends Vue{
     bombed: boolean = false;
     digged: boolean = false;
     marked: boolean = false;
-    check: number=0;
+    checked: boolean=false;
 
     init(){
         this.bombed=false;
         this.digged=false;
         this.marked=false;
-        this.check=0;
+        this.checked=false;
     }
 
     get mutable(){//get = computed のこと statusを取得するためのメソッド
@@ -73,19 +73,18 @@ export default class Cell extends Vue{
     dig(){
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
-        this.check++
+        this.checked=true;
         this.$emit('edit');
         
         let indicator: number=0;
         if(this.bombed==true && this.array3.length==1){//これがわからないそうですthis.array3.length　thisが問題？
             this.bombed = false;
             this.digged = true;
-            console.log(this.x)
-            console.log(this.y)
             this.$emit('put',this.x,this.y)
-        }else if(this.bombed==true&&this.array3.length!=1){//ここはOK　カウント２以上で爆弾掘った時の処置
+        }else if(this.bombed==true && this.array3.length!=1){//ここはOK　カウント２以上で爆弾掘った時の処置
             this.digged = true;
             this.$emit('update');
+            
         }else{//爆弾がない時の処置
             if(this.arounds.length==0){
                 this.digged = true;
