@@ -55,7 +55,7 @@ main {
                     :status="status"
                     :arounds="gatherAroundCells(x, y)"
                     :x="x"
-                    :y="y"
+                    :y="y" 
                     :array3="array3"
                     @update="recount()"
                     @put="put()"
@@ -84,8 +84,9 @@ const components = {
     components: {Cell}//これって書く必要あるのか？
 })
 export default class Game extends Vue{ //Gameと言うクラススタイルVueコンポーネントを宣言
-    readonly digged!: boolean;//!はnull/undefinedではないことを意味している
+    digged!: boolean;//!はnull/undefinedではないことを意味している
     bombed!: boolean;//これreadonlyだから、爆弾の真偽値Gameの中でいじれないよね？
+    bombs!:number;
     status: Status = 'preparing';//初めの状態
     width: number = 5;
     height: number = 5;
@@ -136,12 +137,12 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     }
     
-    edit(){
+    edit(){//一番初めのマスカどうかのチェック
         let array=this.getCells();
         for(let b = array.length - 1; b >= 0; b--){
             const cell = array[b];
             if(cell.checked==true){//クリックされた回数が1回のものは
-                this.array3.push(cell);//array３配列に追加　  ゲーム状態が成功or失敗となったら、array2は消す
+                this.array3.push(cell);//array３配列に追加　  
             }
         }
     }
@@ -158,7 +159,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
                 if(cell!=undefined){
                     if(cell.bombed==false){
                         cell.bombed=true;
-                        console.log("ok")
+                        
                         indicator=indicator+1;
                     }else{
                     }
@@ -207,8 +208,6 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     }
 
-
-
     open(){//成功した場合のゲーム終了関数 成功パターンの終了指標管理
         this.opened=this.opened+1;
         if(this.opened==((this.width*this.height)-this.bomb)){
@@ -218,18 +217,25 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
             alert("Congratulations")
         }
     } 
+
     hatch(x:number,y:number){//周辺に爆弾がない場合の、周辺の爆弾の処理
-        for (let j = y - 1; j <= y + 1; j++) {//多分他のますの処理もするから引数でここのx,y渡してgameで実行
-            for (let i = x - 1; i <= x + 1; i++) {
-                const array=this.getCells();
-                let group=array.filter(cell=>{
-                        cell.x==i && (cell.x==i && cell.y==j) && cell.bombed==false && cell.digged==false//周辺で、空いてなくて、ボムのないものを配列に追加
-                });
-                for(let b = group.length - 1; b >= 0; b--){
-                    const c = array[b];
-                    c.digged=true;
+        for (let i = x - 1; i <= x + 1; i++) {
+            for (let j = y - 1; j <= y + 1; j++) {
+                console.log("hello")
+                const array=this.getCells();//全てのセルの中から
+                for(let b = array.length - 1; b >= 0; b--){//一個一個取り出して、
+                    const cell = array[b];//y-1,x-1 y+1,x+1みたいにならないかな？ならない→だってy-1に対して3回行われることとなるから　console.log(cell.x)を繰り返しの中に
+                    if (cell.x==i && cell.y==j && cell.bombed==false && cell.digged==false && cell.bombs==0){//の条件を満たすものを配列に仕立てる　ここでbombsが０のものに関してはhatch(i,j)したらおk
+                        cell.digged = true;
+                        this.opened = this.opened++;//この後の処理として、周辺にばくだんがないものの処理　this.$refs.cells. 開ける処理をしたらもう一回こっちに戻ってきてそのx,yをここに入れたい
+                        this.hatch(i,j);
+                    }else if (cell.x==i && cell.y==j && cell.bombed==false && cell.digged==false && cell.bombs!=0){
+                        cell.digged = true;
+                        this.opened = this.opened++;
+                    }else{
+
+                    }                                    
                 }
-                this.opened=this.opened+group.length; //周辺のますで開けたものの分をopenedに追加　クリックしたところはopen()で処理
             }
         }
     }           

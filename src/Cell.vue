@@ -13,7 +13,10 @@
 </style>
 
 <template>
-    <div :class="{digged}" @click="dig()" @contextmenu.prevent="mark()"> <!--v-on,v-bindの省略記法-->
+    <div :class="{digged}"
+         
+         @click="dig()"
+         @contextmenu.prevent="mark()"> <!--v-on,v-bindの省略記法-->
         {{display()}}
     </div>
     
@@ -35,13 +38,13 @@ export default class Cell extends Vue{
     readonly y!: number;
     readonly width!: number;
     readonly height!: number;
-    
-    array3!: Cell[];
-    
+    readonly array3!: Cell[];
+
     bombed: boolean = false;
     digged: boolean = false;
     marked: boolean = false;
-    checked: boolean=false;
+    checked: boolean = false;
+    bombs: number=0;
 
     init(){
         this.bombed=false;
@@ -70,36 +73,38 @@ export default class Cell extends Vue{
         return '';
     }
 
-    dig(){
+    dig(){//クリックした時の処理
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
         this.checked=true;
         this.$emit('edit');
-        
+        this.bombs= this.aroundBombsNumber;
         let indicator: number=0;
-        if(this.bombed==true && this.array3.length==1){//これがわからないそうですthis.array3.length　thisが問題？
+        if(this.bombed==true && this.array3.length==1){
             this.bombed = false;
             this.digged = true;
             this.$emit('put',this.x,this.y)
         }else if(this.bombed==true && this.array3.length!=1){//ここはOK　カウント２以上で爆弾掘った時の処置
             this.digged = true;
             this.$emit('update');
+
+        }else if(this.bombed==false && this.bombs==0){//周りに爆弾がない時の処置
             
-        }else{//爆弾がない時の処置
-            if(this.arounds.length==0){
-                this.digged = true;
-                this.$emit('hatch',this.x,this.y)
-                this.$emit('open')
-            }else{
-                this.digged = true;
-                this.$emit('open')
-            }
+            //this.$emit('hatch',this.x,this.y)//hatchは動いてないけど、ここまでは到達している
+            this.digged = true;
+        }else{//周りに爆弾あるます
+            this.digged = true;
+            this.$emit('open')
         }
     }
+
+    
 
     mark(){
         if(!this.mutable) return;
         this.marked = !this.marked;
     }
+
+    
 }
 </script>
