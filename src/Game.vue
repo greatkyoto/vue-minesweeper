@@ -43,11 +43,11 @@ main {
         <p>
             💣：<input type="number" v-model.number="bomb" :min="1" :max="width * height" :disabled="status != 'preparing'" />
         </p>
-        <button v-if="status == 'preparing'" v-on:click="start()">Start</button>
+        <button v-if="status == 'preparing'" @click="start">Start</button><!--v-ifで表示を切り替え-->
         <button v-else-if="status == 'playing'" @click="recount">Giveup</button>
         <button v-else @click="reset">Reset</button>
     </div>
-    <table id="table">
+    <table>
         <tr v-for="y in height" :key="y"><!--指定した回数表示を繰り返す　v-bind:key="y"-->
             <td v-for="x in width" :key="x">
                 <cell
@@ -61,8 +61,8 @@ main {
                     @put="put()"
                     @open="open()"
                     @edit="edit()"
-                    @hatch="hatch()">
-                </cell>
+                    @hatch="hatched()">
+                </cell><!-- refでrefsに登録　: bindの省略　＠v-onの省略-->
             </td>
         </tr>
     </table>
@@ -81,7 +81,7 @@ const components = {
 };
 
 @Component({
-    components: {Cell}//これって書く必要あるのか？
+    components: {Cell}
 })
 export default class Game extends Vue{ //Gameと言うクラススタイルVueコンポーネントを宣言
     digged!: boolean;//!はnull/undefinedではないことを意味している
@@ -146,28 +146,6 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
             }
         }
     }
-
-    put(x:number,y:number){//作成した座標にマッチするセルにボム
-        let array=this.getCells();
-        let indicator: number=0;
-        while(indicator!=1){
-            let a = Math.floor(Math.random() * this.width +1);
-            let b = Math.floor(Math.random() * this.height +1);//a,bは生成されている
-            if( a==x && b==y ){
-            }else{
-                let cell = array.find(element=>element.x==a && element.y==b) //そこに爆弾がなければ
-                if(cell!=undefined){
-                    if(cell.bombed==false){
-                        cell.bombed=true;
-                        
-                        indicator=indicator+1;
-                    }else{
-                    }
-                }
-            }
-        }
-    }
-    
     
 
     recount(){//ゲーム終了　全てのセルオープン　完成
@@ -218,26 +196,49 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     } 
 
-    hatch(x:number,y:number){//周辺に爆弾がない場合の、周辺の爆弾の処理
-        for (let i = x - 1; i <= x + 1; i++) {
-            for (let j = y - 1; j <= y + 1; j++) {
-                console.log("hello")
-                const array=this.getCells();//全てのセルの中から
-                for(let b = array.length - 1; b >= 0; b--){//一個一個取り出して、
-                    const cell = array[b];//y-1,x-1 y+1,x+1みたいにならないかな？ならない→だってy-1に対して3回行われることとなるから　console.log(cell.x)を繰り返しの中に
-                    if (cell.x==i && cell.y==j && cell.bombed==false && cell.digged==false && cell.bombs==0){//の条件を満たすものを配列に仕立てる　ここでbombsが０のものに関してはhatch(i,j)したらおk
-                        cell.digged = true;
-                        this.opened = this.opened++;//この後の処理として、周辺にばくだんがないものの処理　this.$refs.cells. 開ける処理をしたらもう一回こっちに戻ってきてそのx,yをここに入れたい
-                        this.hatch(i,j);
-                    }else if (cell.x==i && cell.y==j && cell.bombed==false && cell.digged==false && cell.bombs!=0){
-                        cell.digged = true;
-                        this.opened = this.opened++;
-                    }else{
 
-                    }                                    
+    put(x:number,y:number){//作成した座標にマッチするセルにボム
+        let array=this.getCells();
+        let indicator: number=0;
+        while(indicator!=1){
+            let a = Math.floor(Math.random() * this.width +1);
+            let b = Math.floor(Math.random() * this.height +1);//a,bは生成されている
+            if( a==x && b==y ){
+            }else{
+                let cell = array.find(element=>element.x==a && element.y==b) //そこに爆弾がなければ
+                if(cell!=undefined){
+                    if(cell.bombed==false){
+                        cell.bombed=true;
+                        
+                        indicator=indicator+1;
+                    }else{
+                    }
                 }
             }
         }
-    }           
+    }
+
+    hatched(x:number,y:number){//周辺に爆弾がない場合の、周辺の爆弾の処理
+        for (let i = x - 1; i <= x + 1; i++) {//iがx-1から これだとx,y入るけど他の条件で弾ける １＝＜this.x＝＜this.width　外のマスはないとは思うが、念のため１以上の処理記述
+            for (let j = y - 1; j <= y + 1; j++) {
+                if(i　>= 1 && j >= 1){
+                    const cell=this.getCells().find(element => element.x==i && element.y==j && element.digged==false && element.bombed==false && ( element.x != x || element.y != y ));//全てのセルの中から
+                    //for(let b = array.length - 1; b >= 0; b--){//一個一個取り出して、
+                        //const cell = array[b];
+                    if(cell!=undefined){
+                        if (cell.bombs==0){//の条件を満たすものを配列に仕立てる　ここでbombsが０のものに関してはhatch(i,j)したらおk
+                            cell.digged = true;
+                            this.opened = this.opened++;//この後の処理として、周辺にばくだんがないものの処理　this.$refs.cells. 開ける処理をしたらもう一回こっちに戻ってきてそのx,yをここに入れたい
+                            this.hatched(i,j);
+                        }else{
+                            cell.digged = true;
+                            this.opened = this.opened++;
+                        }
+                    }
+                    //}
+                }
+            }
+        }
+    }                   
 }
 </script>

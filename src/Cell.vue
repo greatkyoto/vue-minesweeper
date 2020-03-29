@@ -77,7 +77,7 @@ export default class Cell extends Vue{
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
         this.checked=true;
-        this.$emit('edit');
+        
         this.bombs= this.aroundBombsNumber;
         let indicator: number=0;
         if(this.bombed==true && this.array3.length==1){
@@ -90,15 +90,15 @@ export default class Cell extends Vue{
 
         }else if(this.bombed==false && this.bombs==0){//周りに爆弾がない時の処置
             
-            //this.$emit('hatch',this.x,this.y)//hatchは動いてないけど、ここまでは到達している
+            this.$emit('hatch',this.x,this.y)//hatchは動いてないけど、ここまでは到達している
             this.digged = true;
+            this.$emit('open')
         }else{//周りに爆弾あるます
+            
             this.digged = true;
             this.$emit('open')
         }
     }
-
-    
 
     mark(){
         if(!this.mutable) return;
