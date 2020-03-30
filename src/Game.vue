@@ -120,6 +120,36 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         });
     }
 
+    hatched(x:number,y:number){//周辺に爆弾がない場合の、周辺の爆弾の処理
+        let array = this.gatherAroundCells(x,y);
+        for(let b = array.length - 1; b >= 0; b--){
+            let cell = array[b];
+            if(cell.bombs==0){
+                cell.digged=true;
+                this.hatched(cell.x,cell.y)
+            }else{
+                cell.digged=true;
+            } 
+        }
+        // for (let i = x - 1; i <= x + 1; i++) {//iがx-1から これだとx,y入るけど他の条件で弾ける １＝＜this.x＝＜this.width　外のマスはないとは思うが、念のため１以上の処理記述
+        //     for (let j = y - 1; j <= y + 1; j++) {
+        //         if(i　>= 1 && j >= 1){
+        //             const cell=this.getCells().find(element => element.x==i && element.y==j && element.digged==false && element.bombed==false && ( element.x != x || element.y != y ));//全てのセルの中から
+        //             if(cell!=undefined){
+        //                 if (cell.bombs==0){//の条件を満たすものを配列に仕立てる　ここでbombsが０のものに関してはhatch(i,j)したらおk
+        //                     cell.digged = true;
+        //                     this.opened = this.opened++;//この後の処理として、周辺にばくだんがないものの処理　this.$refs.cells. 開ける処理をしたらもう一回こっちに戻ってきてそのx,yをここに入れたい
+        //                     this.hatched(i,j);
+        //                 }else{
+        //                     cell.digged = true;
+        //                     this.opened = this.opened++;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+    }
+
 
     establish(){
         let array=this.getCells();
@@ -218,27 +248,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     }
 
-    hatched(x:number,y:number){//周辺に爆弾がない場合の、周辺の爆弾の処理
-        for (let i = x - 1; i <= x + 1; i++) {//iがx-1から これだとx,y入るけど他の条件で弾ける １＝＜this.x＝＜this.width　外のマスはないとは思うが、念のため１以上の処理記述
-            for (let j = y - 1; j <= y + 1; j++) {
-                if(i　>= 1 && j >= 1){
-                    const cell=this.getCells().find(element => element.x==i && element.y==j && element.digged==false && element.bombed==false && ( element.x != x || element.y != y ));//全てのセルの中から
-                    //for(let b = array.length - 1; b >= 0; b--){//一個一個取り出して、
-                        //const cell = array[b];
-                    if(cell!=undefined){
-                        if (cell.bombs==0){//の条件を満たすものを配列に仕立てる　ここでbombsが０のものに関してはhatch(i,j)したらおk
-                            cell.digged = true;
-                            this.opened = this.opened++;//この後の処理として、周辺にばくだんがないものの処理　this.$refs.cells. 開ける処理をしたらもう一回こっちに戻ってきてそのx,yをここに入れたい
-                            this.hatched(i,j);
-                        }else{
-                            cell.digged = true;
-                            this.opened = this.opened++;
-                        }
-                    }
-                    //}
-                }
-            }
-        }
-    }                   
+       
+
 }
 </script>

@@ -44,7 +44,7 @@ export default class Cell extends Vue{
     digged: boolean = false;
     marked: boolean = false;
     checked: boolean = false;
-    bombs: number=0;
+    bombs: number=this.aroundBombsNumber;
 
     init(){
         this.bombed=false;
@@ -77,8 +77,6 @@ export default class Cell extends Vue{
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
         this.checked=true;
-        
-        this.bombs= this.aroundBombsNumber;
         let indicator: number=0;
         if(this.bombed==true && this.array3.length==1){
             this.bombed = false;
