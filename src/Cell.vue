@@ -1,10 +1,8 @@
 <style scoped lang="scss">
     div {
         cursor: pointer;
-
         width: 1.5em;
         height: 1.5em;
-
         background-color: #ccc;
         &.digged {
             background-color: #666;
@@ -14,9 +12,8 @@
 
 <template>
     <div :class="{digged}"
-         
          @click="dig()"
-         @contextmenu.prevent="mark()"> <!--v-on,v-bindの省略記法-->
+         @contextmenu.prevent="mark()"> <!--v-on,v-bindの省略記法　:bombs="aroundBombsNumber"-->
         {{display()}}
     </div>
     
@@ -39,12 +36,17 @@ export default class Cell extends Vue{
     readonly width!: number;
     readonly height!: number;
     readonly array3!: Cell[];
-
     bombed: boolean = false;
     digged: boolean = false;
     marked: boolean = false;
     checked: boolean = false;
-    bombs: number=this.aroundBombsNumber;
+    bombs: number = 0; //0にしたら０固定
+    //bombs!: number
+
+    // beforeCreate(){
+    //     this.bombs=this.aroundBombsNumber;
+    // }
+
 
     init(){
         this.bombed=false;
@@ -60,9 +62,11 @@ export default class Cell extends Vue{
     }
 
     get aroundBombsNumber(){//周辺の爆弾の数を返す物　//gatherAroundCellsをGameから取得
-        let array = this.arounds.filter(element => element.bombed==true).length;//ボムがある周りのます自体をarrayに代入　そしてarrayの数を出力する
-        return array;
+        let bombsNumber = this.arounds.filter(element => element.bombed==true).length;//ボムがある周りのます自体をarrayに代入　そしてarrayの数を出力する
+        return bombsNumber;
     }
+
+    
 
     display(){//マスに表示するマーク、爆弾、周辺の爆弾の数
         if(this.marked) return '🚩';
@@ -77,7 +81,9 @@ export default class Cell extends Vue{
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
         this.checked=true;
-        let indicator: number=0;
+        this.$emit('edit')
+        // this.bombs= this.aroundBombsNumber;
+        console.log(this.bombs)
         if(this.bombed==true && this.array3.length==1){
             this.bombed = false;
             this.digged = true;
@@ -85,14 +91,11 @@ export default class Cell extends Vue{
         }else if(this.bombed==true && this.array3.length!=1){//ここはOK　カウント２以上で爆弾掘った時の処置
             this.digged = true;
             this.$emit('update');
-
         }else if(this.bombed==false && this.bombs==0){//周りに爆弾がない時の処置
-            
-            this.$emit('hatch',this.x,this.y)//hatchは動いてないけど、ここまでは到達している
             this.digged = true;
             this.$emit('open')
+            this.$emit('hatch',this.x,this.y)//hatchは動いてないけど、ここまでは到達している
         }else{//周りに爆弾あるます
-            
             this.digged = true;
             this.$emit('open')
         }
