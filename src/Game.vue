@@ -62,7 +62,7 @@ main {
                     @open="open()"
                     @edit="edit()"
                     @hatch="hatched(x,y)">
-                </cell><!-- refでrefsに登録　: bindの省略　＠v-onの省略 :bombs="gatherAroundBombs(x,y)"-->
+                </cell><!-- refでrefsに登録　: bindの省略　＠v-onの省略 -->
             </td>
         </tr>
     </table>
@@ -83,10 +83,12 @@ const components = {
 @Component({
     components: {Cell}
 })
+
 export default class Game extends Vue{ //Gameと言うクラススタイルVueコンポーネントを宣言
     digged!: boolean;//!はnull/undefinedではないことを意味している
     bombed!: boolean;
     bombs!: number
+
     status: Status = 'preparing';//初めの状態
     width: number = 5;
     height: number = 5;
@@ -139,7 +141,12 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         for (let i = x - 1; i <= x + 1; i++) {//iがx-1から これだとx,y入るけど他の条件で弾ける １＝＜this.x＝＜this.width　外のマスはないとは思うが、念のため１以上の処理記述
             for (let j = y - 1; j <= y + 1; j++) {
                 if(i　>= 1 && j >= 1){
-                    const cell=this.getCells().find(element => element.x==i && element.y==j && element.digged==false && element.bombed==false && ( element.x != x || element.y != y ));//全てのセルの中から
+                    const cell=this.getCells().find(element => 
+                        element.x==i 
+                        && element.y==j 
+                        && element.digged==false 
+                        && element.bombed==false 
+                        && ( element.x != x || element.y != y ));//全てのセルの中から
                     if(cell!=undefined){
                         if (cell.bombs==0){//の条件を満たすものを配列に仕立てる　ここでbombsが０のものに関してはhatch(i,j)したらおk
                             cell.digged = true;
@@ -155,21 +162,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     }
 
-    establish(){
-        let array=this.getCells();
-        let array2: Cell[]=[];
-        while(array2.length!=this.bomb){//爆弾の置く個数分ランダム生成は必要
-            let a = Math.floor(Math.random() * this.width +1);
-            let b = Math.floor(Math.random() * this.height +1);
-            let cell=array.find(element=>element.x==a&&element.y==b)
-            if(cell!=undefined){
-                if(cell.bombed==false){
-                    cell.bombed=true;
-                    array2.push(cell);
-                }
-            }  
-        }
-    }
+    
     
     edit(){//一番初めのマスカどうかのチェック
         let array=this.getCells();
@@ -199,7 +192,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
             if (this.bomb > 0 && this.height > 0 && this.width > 0 && this.bomb < this.width * this.height) {
                 this.status = 'playing';
                 this.establish();
-                this.putBomb();
+                this.putBomb();//ばくだんを再配置したからbombsも
             }else{
                 alert("入力値はルールに則ってください");
             }
@@ -209,7 +202,8 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     }
 
     giveUp(){//完成
-        this.status = 'failured';//この後にセルを削除するコードを        
+        this.status = 'failured';//この後にセルを削除するコードを  
+        alert("失敗")      
     }
 
     reset(){//完成
@@ -233,20 +227,34 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         }
     } 
 
+    establish(){//配置
+        let array=this.getCells();
+        let array2: Cell[]=[];
+        while(array2.length!=this.bomb){//爆弾の置く個数分ランダム生成は必要
+            let a = Math.floor(Math.random() * this.width +1);
+            let b = Math.floor(Math.random() * this.height +1);
+            let cell=array.find(element=>element.x==a&&element.y==b)
+            if(cell!=undefined){
+                if(cell.bombed==false){
+                    cell.bombed=true;
+                    array2.push(cell);
+                }
+            }  
+        }
+    }
 
-    put(x:number,y:number){//作成した座標にマッチするセルにボム
+    put(x:number,y:number){//再配置の関数
         let array=this.getCells();
         let indicator: number=0;
         while(indicator!=1){
             let a = Math.floor(Math.random() * this.width +1);
-            let b = Math.floor(Math.random() * this.height +1);//a,bは生成されている
+            let b = Math.floor(Math.random() * this.height +1);
             if( a==x && b==y ){
             }else{
-                let cell = array.find(element=>element.x==a && element.y==b) //そこに爆弾がなければ
+                let cell = array.find(element=>element.x==a && element.y==b) 
                 if(cell!=undefined){
                     if(cell.bombed==false){
                         cell.bombed=true;
-                        
                         indicator=indicator+1;
                     }else{
                     }
@@ -256,7 +264,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         this.putBomb();
     }
 
-    putBomb(){
+    putBomb(){//周辺の爆弾の数せってい　OK
         let array=this.getCells();
         for(let b = array.length - 1; b >= 0; b--){
             const cell = array[b];

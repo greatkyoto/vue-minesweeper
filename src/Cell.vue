@@ -41,12 +41,6 @@ export default class Cell extends Vue{
     marked: boolean = false;
     checked: boolean = false;
     bombs: number = 0; //0にしたら０固定
-    //bombs!: number
-
-    // beforeCreate(){
-    //     this.bombs=this.aroundBombsNumber;
-    // }
-
 
     init(){
         this.bombed=false;
@@ -78,7 +72,6 @@ export default class Cell extends Vue{
     }
 
     dig(){//クリックした時の処理
-        
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
         this.checked=true;
