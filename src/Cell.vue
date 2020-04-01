@@ -82,7 +82,7 @@ export default class Cell extends Vue{
         if(this.marked) return;
         this.checked=true;
         this.$emit('edit')
-        // this.bombs= this.aroundBombsNumber;
+        this.bombs= this.aroundBombsNumber;
         console.log(this.bombs)
         if(this.bombed==true && this.array3.length==1){
             this.bombed = false;
@@ -95,6 +95,7 @@ export default class Cell extends Vue{
             this.digged = true;
             this.$emit('open')
             this.$emit('hatch',this.x,this.y)//hatchは動いてないけど、ここまでは到達している
+            
         }else{//周りに爆弾あるます
             this.digged = true;
             this.$emit('open')

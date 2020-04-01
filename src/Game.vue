@@ -58,10 +58,10 @@ main {
                     :y="y" 
                     :array3="array3"
                     @update="recount()"
-                    @put="put()"
+                    @put="put(x,y)"
                     @open="open()"
                     @edit="edit()"
-                    @hatch="hatched()">
+                    @hatch="hatched(x,y)">
                 </cell><!-- refでrefsに登録　: bindの省略　＠v-onの省略 :bombs="gatherAroundBombs(x,y)"-->
             </td>
         </tr>
@@ -136,20 +136,6 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
 
 
     hatched(x: number,y: number){//周辺に爆弾がない場合の、周辺の爆弾の処理
-        // let array = this.gatherAroundCells(x,y);//クリックしたマスの周囲のますの配列
-        // for(let b = array.length - 1; b >= 0; b--){
-        //     let cell = array[b];//取り出し、周囲の爆弾の数で処理を分別　どちらでもクリックしたますの周囲のますは開ける
-        //     if(cell.bombed==false){
-        //         if(cell.bombs==0){//周辺の爆弾が０　
-        //                 cell.digged=true;
-        //                 this.open();
-        //                 this.hatched(cell.x,cell.y)
-        //             }else{//それ以上の時　
-        //                 cell.digged=true;
-        //                 this.open();
-        //             } 
-        //     }
-        // }
         for (let i = x - 1; i <= x + 1; i++) {//iがx-1から これだとx,y入るけど他の条件で弾ける １＝＜this.x＝＜this.width　外のマスはないとは思うが、念のため１以上の処理記述
             for (let j = y - 1; j <= y + 1; j++) {
                 if(i　>= 1 && j >= 1){
@@ -157,11 +143,11 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
                     if(cell!=undefined){
                         if (cell.bombs==0){//の条件を満たすものを配列に仕立てる　ここでbombsが０のものに関してはhatch(i,j)したらおk
                             cell.digged = true;
-                            this.opened = this.opened++;//この後の処理として、周辺にばくだんがないものの処理　this.$refs.cells. 開ける処理をしたらもう一回こっちに戻ってきてそのx,yをここに入れたい
+                            this.open();//この後の処理として、周辺にばくだんがないものの処理　this.$refs.cells. 開ける処理をしたらもう一回こっちに戻ってきてそのx,yをここに入れたい
                             this.hatched(i,j);
                         }else{
                             cell.digged = true;
-                            this.opened = this.opened++;
+                            this.open();
                         }
                     }
                 }
@@ -226,7 +212,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
 
     giveUp(){//完成
         this.status = 'failured';//この後にセルを削除するコードを    
-        alert("Faulse")
+        //alert("Faulse")
     }
 
     reset(){//完成
