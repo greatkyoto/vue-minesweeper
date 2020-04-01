@@ -78,16 +78,15 @@ export default class Cell extends Vue{
     }
 
     dig(){//クリックした時の処理
+        
         if(!this.mutable) return;//undifinedが帰る
         if(this.marked) return;
         this.checked=true;
-        this.$emit('edit')
-        this.bombs= this.aroundBombsNumber;
-        console.log(this.bombs)
+        this.$emit('edit');
         if(this.bombed==true && this.array3.length==1){
             this.bombed = false;
-            this.digged = true;
-            this.$emit('put',this.x,this.y)
+            this.$emit('put',this.x,this.y)//再配置　bombsの再設定
+            this.dig();//else if 以下を実行し直す
         }else if(this.bombed==true && this.array3.length!=1){//ここはOK　カウント２以上で爆弾掘った時の処置
             this.digged = true;
             this.$emit('update');
@@ -95,7 +94,6 @@ export default class Cell extends Vue{
             this.digged = true;
             this.$emit('open')
             this.$emit('hatch',this.x,this.y)//hatchは動いてないけど、ここまでは到達している
-            
         }else{//周りに爆弾あるます
             this.digged = true;
             this.$emit('open')

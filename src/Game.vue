@@ -192,16 +192,14 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
         this.giveUp();
     }
 
+
+
     start(){//完成
         if(this.bomb!=null && this.height!=null && this.width!=null){
             if (this.bomb > 0 && this.height > 0 && this.width > 0 && this.bomb < this.width * this.height) {
                 this.status = 'playing';
                 this.establish();
-                let array=this.getCells();
-                for(let b = array.length - 1; b >= 0; b--){
-                    const cell = array[b];
-                    cell.bombs=this.gatherAroundBombs(cell.x,cell.y);
-                }
+                this.putBomb();
             }else{
                 alert("入力値はルールに則ってください");
             }
@@ -211,8 +209,7 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
     }
 
     giveUp(){//完成
-        this.status = 'failured';//この後にセルを削除するコードを    
-        //alert("Faulse")
+        this.status = 'failured';//この後にセルを削除するコードを        
     }
 
     reset(){//完成
@@ -256,8 +253,16 @@ export default class Game extends Vue{ //Gameと言うクラススタイルVue�
                 }
             }
         }
+        this.putBomb();
     }
 
+    putBomb(){
+        let array=this.getCells();
+        for(let b = array.length - 1; b >= 0; b--){
+            const cell = array[b];
+            cell.bombs=this.gatherAroundBombs(cell.x,cell.y);
+        }
+    }
        
 
 }
